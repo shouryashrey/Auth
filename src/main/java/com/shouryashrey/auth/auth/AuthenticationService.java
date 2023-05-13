@@ -17,7 +17,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request) throws Exception {
         var user = User.builder()
             .firstName(request.getFirstName())
             .lastName(request.getLastName())
@@ -25,6 +25,13 @@ public class AuthenticationService {
             .password(passwordEncoder.encode(request.getPassword()))
             .role(Role.USER)
             .build();
+
+        var findUser = userRepository.findByEmail(request.getEmail());
+        System.out.println(findUser);
+        if(findUser.isPresent()) {
+            throw new Exception("User Already Exist");
+        }
+
         userRepository.save(user);
 
         var jwtToken = jwtService.generateToken(user);
@@ -48,6 +55,13 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
             .token(jwtToken)
+            .build();
+    }
+
+    public AuthenticationResponse userAlreadyExist() {
+        String message = "User Already Exist";
+        return AuthenticationResponse.builder()
+            .token(message)
             .build();
     }
 }

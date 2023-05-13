@@ -1,6 +1,7 @@
 package com.shouryashrey.auth.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,14 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> register(
         @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        try {
+            System.out.println("TRYING");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(authenticationService.register(request));
+        }
+        catch(Exception exception) {
+            System.out.println("Request rejected");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(authenticationService.userAlreadyExist());
+        }
     }
 
     @PostMapping("/authenticate")
